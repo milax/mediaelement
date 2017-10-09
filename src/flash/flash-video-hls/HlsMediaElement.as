@@ -31,6 +31,8 @@
 		private var _volume: Number = 1;
 		private var _isMuted: Boolean = false;
 		private var _readyState:Number = 0;
+		
+		private var _playWhenConnected: Boolean = false;
 
 		private var _bufferedTime: Number = 0;
 		private var _videoWidth: Number = -1;
@@ -145,21 +147,21 @@
 		private function fire_load(): void {
 			if (_url) {
 				sendEvent("loadstart");
+				_isManifestLoaded = false;
 				_hls.load(_url);
 			}
 		}
+		
 		private function fire_play(): void {
 			if (!_isManifestLoaded) {
-				fire_load();
+				_playWhenConnected = true;
 				return;
 			}
-
 			if (_hlsState == HLSPlayStates.PAUSED || _hlsState == HLSPlayStates.PAUSED_BUFFERING) {
 				_hls.stream.resume();
 			} else {
 				_hls.stream.play();
 			}
-
 		}
 		private function fire_pause(): void {
 			if (!_isManifestLoaded) {
@@ -220,7 +222,7 @@
 					_video.width = contWidth;
 					_video.height = contHeight;
 				}
-			}			
+			}
 		}
 
 		//
@@ -375,7 +377,8 @@
 				_playqueued = false;
 			}
 
-			if (_autoplay) {
+			if (_autoplay || _playWhenConnected) {
+				_playWhenConnected = false;
 				_hls.stream.play();
 			}
 			sendEvent('onManifestLoaded', JSON.stringify(event.levels));
