@@ -6849,8 +6849,8 @@ var HtmlMediaElement = {
 
 		node.addEventListener('error', function (e) {
 			if (e.target.error.code === 4 && isActive) {
-				if (index < total) {
-					node.src = mediaFiles[index++].src;
+				if (++index < total) {
+					node.src = mediaFiles[index].src;
 					node.load();
 					node.play();
 				} else {
